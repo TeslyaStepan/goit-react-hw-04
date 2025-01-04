@@ -1,57 +1,56 @@
-import s from "./App.module.css";
-import ContactList from "./components/ContactList/ContactList";
-import SearchBox from "./components/SearchBox/SearchBox";
-import ContactForm from "./components/ContactForm/ContactForm";
-import contactsTodo from "./contactsTodo.json";
+// import ImageGallery from "./components/ImageGallery/ImageGallery";
+import SearchBar from "./components/SearchBar/SearchBar";
+// import LoadMoreBtn from "./components/LoadMoreBtn/LoadMoreBtn";
+import { fetchImages } from "./gallery-api";
 import "modern-normalize";
+import toast, { Toaster } from "react-hot-toast";
 import { useEffect, useState } from "react";
-import { nanoid } from "nanoid";
 
 const App = () => {
-  const [contacts, setContacts] = useState(() => {
-    const savedContacts = window.localStorage.getItem("saved-contacts");
-
-    if (savedContacts !== null) {
-      return JSON.parse(savedContacts);
+  const [gallery, setGallery] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  useEffect(() => {
+    if (!query.trim()) return;
+    const getGalleryData = async () => {
+      try {
+        setIsLoading(true);
+        setIsError(false);
+        const { results } = await fetchImages({ query, page });
+        setGallery((prev) => [...prev, ...results]);
+      } catch {
+        setIsError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    getGalleryData();
+  }, [query, page]);
+  const handleChangeQuery = (newQuery) => {
+    if (newQuery === query) {
+      toast.error("Please change query!");
+      return;
+    }
+    if (!newQuery) {
+      toast.error("Please enter query text!");
+      return;
     }
 
-    return contactsTodo;
-  });
-
-  const [inputValue, setInputValue] = useState("");
-
-  const handleChange = (e) => {
-    setInputValue(e.target.value);
+    setQuery(newQuery);
+    setPage(1);
+    setGallery([]);
   };
-
-  const addNewContact = (values) => {
-    const newContact = { ...values, id: nanoid() };
-    setContacts((prev) => {
-      return [...prev, newContact];
-    });
-  };
-
-  const visibleContacts = contacts.filter((contact) =>
-    contact.name.toLocaleLowerCase().includes(inputValue.toLocaleLowerCase())
-  );
-
-  const deleteContact = (id) => {
-    setContacts((prev) => {
-      return prev.filter((contact) => contact.id !== id);
-    });
-  };
-
-  useEffect(() => {
-    window.localStorage.setItem("saved-contacts", JSON.stringify(contacts));
-  }, [contacts]);
-
   return (
-    <div className={s.wrapper}>
-      <h1 className={s.header}>Phonebook</h1>
-      <ContactForm addNewContact={addNewContact} />
-      <SearchBox value={inputValue} onChange={handleChange} />
-      <ContactList contacts={visibleContacts} onDelete={deleteContact} />
-    </div>
+    <>
+      <SearchBar onSearchChange={handleChangeQuery} />
+      {/* <ImageGallery /> */}
+      {/* <LoadMoreBtn /> */}
+      {/* <Loader /> */}
+      {/* <ErrorMessage /> */}
+      {/* <ImageModal /> */}
+    </>
   );
 };
 
