@@ -70,7 +70,9 @@ const App = () => {
     <>
       <SearchBar onSearchChange={handleChangeQuery} />
       <ImageGallery gallery={gallery} onClick={handleOpenModal} />
-      <LoadMoreBtn onPageAdd={handleLoadMore} page={page} />
+      {gallery.length > 0 && (
+        <LoadMoreBtn onPageAdd={handleLoadMore} page={page} />
+      )}
       {isLoading && <Loader />}
       {isError && <ErrorMessage />}
       {isOpen && (
