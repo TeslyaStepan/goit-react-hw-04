@@ -55,11 +55,16 @@ const App = () => {
   const handleOpenModal = (image) => {
     setSelectedImage(image);
     setIsOpen(true);
+    document.body.classList.add("modalOpen");
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModal = (e) => {
+    if (e.target === e.currentTarget) {
+      setIsOpen(false);
+    }
     setSelectedImage(null);
     setIsOpen(false);
+    document.body.classList.remove("modalOpen");
   };
   return (
     <>
