@@ -1,7 +1,5 @@
-export default function LoadMoreBtn() {
+export default function LoadMoreBtn({ onPageAdd, page }) {
   return (
-    <div>
-      <button>Load more</button>
-    </div>
+    <div>{page > 0 && <button onClick={onPageAdd}>Load more</button>}</div>
   );
 }

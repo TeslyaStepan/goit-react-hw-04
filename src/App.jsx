@@ -1,17 +1,22 @@
-// import ImageGallery from "./components/ImageGallery/ImageGallery";
+import ImageGallery from "./components/ImageGallery/ImageGallery";
 import SearchBar from "./components/SearchBar/SearchBar";
-// import LoadMoreBtn from "./components/LoadMoreBtn/LoadMoreBtn";
+import Loader from "./components/Loader/Loader";
+import ErrorMessage from "./components/ErrorMessage/ErrorMessage";
+import LoadMoreBtn from "./components/LoadMoreBtn/LoadMoreBtn";
+import ImageModal from "./components/ImageModal/ImageModal";
 import { fetchImages } from "./gallery-api";
 import "modern-normalize";
-import toast, { Toaster } from "react-hot-toast";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const App = () => {
   const [gallery, setGallery] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [query, setQuery] = useState("");
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
   useEffect(() => {
     if (!query.trim()) return;
     const getGalleryData = async () => {
@@ -42,14 +47,30 @@ const App = () => {
     setPage(1);
     setGallery([]);
   };
+
+  const handleLoadMore = () => {
+    setPage(page + 1);
+  };
+
+  const handleOpenModal = (image) => {
+    setSelectedImage(image);
+    setIsOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedImage(null);
+    setIsOpen(false);
+  };
   return (
     <>
       <SearchBar onSearchChange={handleChangeQuery} />
-      {/* <ImageGallery /> */}
-      {/* <LoadMoreBtn /> */}
-      {/* <Loader /> */}
-      {/* <ErrorMessage /> */}
-      {/* <ImageModal /> */}
+      <ImageGallery gallery={gallery} onClick={handleOpenModal} />
+      <LoadMoreBtn onPageAdd={handleLoadMore} page={page} />
+      {isLoading && <Loader />}
+      {isError && <ErrorMessage />}
+      {isOpen && (
+        <ImageModal image={selectedImage} closeModal={handleCloseModal} />
+      )}
     </>
   );
 };
